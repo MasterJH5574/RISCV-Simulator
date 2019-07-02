@@ -30,12 +30,19 @@ private:
     static int32 get_U_imm(const int32 &str);
     static int32 get_J_imm(const int32 &str);
 
-private:
-    void execute();
+public:
+    void IF();
+    void ID();
+    void EX();
+    void MEM();
+    void WB();
 
 public:
     instruction();
     explicit instruction(int32 str);
+
+public:
+    void show_ins();
 };
 
 #endif //PPCA_RISC_V_INSTRUCTIONS_H

@@ -1,3 +1,6 @@
+#include <iostream>
+#include <cstring>
+#include <bitset>
 #include "instructions.h"
 #include "global.h"
 
@@ -171,11 +174,114 @@ instruction::instruction(int32 _str) {
     }
 }
 
-void instruction::execute() {
+void instruction::IF() {
+
+}
+
+void instruction::ID() {
+
+}
+
+void instruction::EX() {
     switch (name) {
         case LUI: reg[rd] = imm, pc += 4; break;
         case AUIPC: reg[rd] += imm, pc += 4; break;
+
         case JAL: reg[rd] = pc + 4, pc += imm; break;
-        case JALR:
+        case JALR: reg[rd] = pc + 4, pc = (imm + reg[rs1]) & (-2u); break;
+
+        case BEQ: pc += reg[rs1] == reg[rs2] ? imm : 4; break;
+        case BNE: pc += reg[rs1] != reg[rs2] ? imm : 4; break;
+        case BLT: pc += (int)reg[rs1] < (int)reg[rs2] ? imm : 4; break;
+        case BGE: pc += (int)reg[rs1] >= (int)reg[rs2] ? imm : 4; break;
+        case BLTU: pc += reg[rs1] < reg[rs2] ? imm : 4; break;
+        case BGEU: pc += reg[rs1] >= reg[rs2] ? imm : 4; break;
+
+        case ADDI: reg[rd] = reg[rs1] + imm, pc += 4; break;
+        case SLTI: reg[rd] = (int)reg[rs1] < (int)imm, pc += 4; break;
+        case SLTIU: reg[rd] = reg[rs1] < imm, pc += 4; break;
+        case XORI: reg[rd] = reg[rs1] ^ imm, pc += 4; break;
+        case ORI: reg[rd] = reg[rs1] | imm, pc += 4; break;
+        case ANDI: reg[rd] = reg[rs1] & imm, pc += 4; break;
+
+        case SLLI: reg[rd] = reg[rs1] << (imm & 31u), pc += 4; break;
+        case SRLI: reg[rd] = reg[rs1] >> (imm & 31u), pc += 4; break;
+        case SRAI: reg[rd] = (int)(reg[rs1]) >> (imm & 31u), pc += 4; break;
+
+        case ADD: reg[rd] = reg[rs1] - reg[rs2], pc += 4; break;
+        case SUB: reg[rd] = reg[rs1] - reg[rs2], pc += 4; break;
+
+        case SLL: reg[rd] = reg[rs1] << (reg[rs2] & 31u), pc += 4; break;
+        case SRL: reg[rd] = reg[rs1] >> (reg[rs2] & 31u), pc += 4; break;
+        case SRA: reg[rd] = (int)(reg[rs1]) >> (reg[rs2] & 31u), pc += 4; break;
+
+        case SLT: reg[rd] = (int)reg[rs1] < (int)reg[rs2], pc += 4; break;
+        case SLTU: reg[rd] = reg[rs1] < reg[rs2], pc += 4; break;
+
+        case XOR: reg[rd] = reg[rs1] ^ reg[rs2], pc += 4; break;
+        case OR: reg[rd] = reg[rs1] | reg[rs2], pc += 4; break;
+        case AND: reg[rd] = reg[rs1] & reg[rs2], pc += 4; break;
+
+        default: break;
     }
+    reg[0] = 0;
+}
+
+void instruction::MEM() {
+    switch (name) {
+        case LB:
+            char res_LB;
+            memcpy(&res_LB, mem + (reg[rs1] + imm), sizeof(char));
+            reg[rd] = (int32)res_LB;
+            break;
+        case LH:
+            short res_LH;
+            memcpy(&res_LH, mem + (reg[rs1] + imm), sizeof(short));
+            reg[rd] = (int32)res_LH;
+            break;
+        case LW:
+            memcpy(&reg[rd], mem + (reg[rs1] + imm), sizeof(int32));
+            break;
+        case LBU:
+            uchar res_LBU;
+            memcpy(&res_LBU, mem + (reg[rs1] + imm), sizeof(uchar));
+            reg[rd] = (int32)res_LBU;
+            break;
+        case LHU:
+            unsigned short res_LHU;
+            memcpy(&res_LHU, mem + (reg[rs1] + imm), sizeof(unsigned short));
+            reg[rd] = (int32)res_LHU;
+            break;
+
+        case SB:
+            char res_SB;
+            res_SB = (char)rs2;
+            memcpy(mem + (reg[rs1] + imm), &res_SB, sizeof(char));
+            break;
+        case SH:
+            short res_SH;
+            res_SH = (short)rs2;
+            memcpy(mem + (reg[rs1] + imm), &res_SH, sizeof(short));
+            break;
+        case SW:
+            memcpy(mem + (reg[rs1] + imm), &rs2, sizeof(int32));
+            break;
+
+        default:
+            break;
+    }
+}
+
+void instruction::WB() {
+
+}
+
+void instruction::show_ins() {
+    std::cout << "name = " << name << std::endl;
+    std::cout << "imm = " << std::bitset<32>(imm) << std::endl;
+    std::cout << "funct3 = " << std::bitset<3>(funct3) << ", funct7 = " << std::bitset<3>(funct7) << std::endl;
+    std::cout << "rs1 = " << std::bitset<5>(rs1) << ", rs2 = " << std::bitset<5>(rs2) << std::endl;
+    std::cout << "rd = " << std::bitset<5>(rd) << std::endl;
+    std::cout << "opcode = " << std::bitset<7>(opcode) << std::endl;
+    std::cout << std::endl;
 }

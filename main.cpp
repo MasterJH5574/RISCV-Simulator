@@ -4,23 +4,35 @@
 
 using namespace std;
 
-
-
 int main() {
-    char buf[12];
-    int32 mem_start;
+    freopen("data.in", "r", stdin);
+
+    char buf[12] = {0};
+    int32 mem_start = 0;
 
     while (scanf("%s", buf) != EOF) {
         if (buf[0] == '@')
             sscanf(buf + 1, "%x", &mem_start);
         else {
-            sscanf(buf, "%x", &mem[mem_start + 3]);
-            scanf("%x", &mem[mem_start + 2]);
+            sscanf(buf, "%x", &mem[mem_start]);
             scanf("%x", &mem[mem_start + 1]);
-            scanf("%x", &mem[mem_start]);
+            scanf("%x", &mem[mem_start + 2]);
+            scanf("%x", &mem[mem_start + 3]);
         }
     }
 
+    pc = 0;
+    while (1) {
+        int32 str;
+        memcpy(&str, mem + pc, sizeof(int32));
+        if (str == 0x00c68223)
+            break;
+
+        instruction ins(str);
+        ins.EX();
+    }
+
+    printf("%u\n", ((int32)reg[10]) & 255u);
 
     /*
     while (scanf("%s", str[3]) != EOF) {
