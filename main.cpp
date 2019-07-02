@@ -18,18 +18,24 @@ int main() {
             scanf("%x", &mem[mem_start + 1]);
             scanf("%x", &mem[mem_start + 2]);
             scanf("%x", &mem[mem_start + 3]);
+            mem_start += 4;
         }
     }
 
     pc = 0;
-    while (1) {
+    while (true) {
         int32 str;
         memcpy(&str, mem + pc, sizeof(int32));
         if (str == 0x00c68223)
             break;
 
         instruction ins(str);
+
+        //printf("reg[a5] = %u\n", reg[15]);
+        //ins.show_ins();
+
         ins.EX();
+        ins.MEM();
     }
 
     printf("%u\n", ((int32)reg[10]) & 255u);

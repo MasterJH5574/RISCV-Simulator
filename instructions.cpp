@@ -208,7 +208,7 @@ void instruction::EX() {
         case SRLI: reg[rd] = reg[rs1] >> (imm & 31u), pc += 4; break;
         case SRAI: reg[rd] = (int)(reg[rs1]) >> (imm & 31u), pc += 4; break;
 
-        case ADD: reg[rd] = reg[rs1] - reg[rs2], pc += 4; break;
+        case ADD: reg[rd] = reg[rs1] + reg[rs2], pc += 4; break;
         case SUB: reg[rd] = reg[rs1] - reg[rs2], pc += 4; break;
 
         case SLL: reg[rd] = reg[rs1] << (reg[rs2] & 31u), pc += 4; break;
@@ -233,38 +233,46 @@ void instruction::MEM() {
             char res_LB;
             memcpy(&res_LB, mem + (reg[rs1] + imm), sizeof(char));
             reg[rd] = (int32)res_LB;
+            pc += 4;
             break;
         case LH:
             short res_LH;
             memcpy(&res_LH, mem + (reg[rs1] + imm), sizeof(short));
             reg[rd] = (int32)res_LH;
+            pc += 4;
             break;
         case LW:
             memcpy(&reg[rd], mem + (reg[rs1] + imm), sizeof(int32));
+            pc += 4;
             break;
         case LBU:
             uchar res_LBU;
             memcpy(&res_LBU, mem + (reg[rs1] + imm), sizeof(uchar));
             reg[rd] = (int32)res_LBU;
+            pc += 4;
             break;
         case LHU:
             unsigned short res_LHU;
             memcpy(&res_LHU, mem + (reg[rs1] + imm), sizeof(unsigned short));
             reg[rd] = (int32)res_LHU;
+            pc += 4;
             break;
 
         case SB:
             char res_SB;
             res_SB = (char)rs2;
-            memcpy(mem + (reg[rs1] + imm), &res_SB, sizeof(char));
+            memcpy(mem + (reg[rs1] + imm), &reg[res_SB], sizeof(char));
+            pc += 4;
             break;
         case SH:
             short res_SH;
             res_SH = (short)rs2;
-            memcpy(mem + (reg[rs1] + imm), &res_SH, sizeof(short));
+            memcpy(mem + (reg[rs1] + imm), &reg[res_SH], sizeof(short));
+            pc += 4;
             break;
         case SW:
-            memcpy(mem + (reg[rs1] + imm), &rs2, sizeof(int32));
+            memcpy(mem + (reg[rs1] + imm), &reg[rs2], sizeof(int32));
+            pc += 4;
             break;
 
         default:
@@ -277,11 +285,13 @@ void instruction::WB() {
 }
 
 void instruction::show_ins() {
+    printf("pc = %x\n", pc);
     std::cout << "name = " << name << std::endl;
     std::cout << "imm = " << std::bitset<32>(imm) << std::endl;
     std::cout << "funct3 = " << std::bitset<3>(funct3) << ", funct7 = " << std::bitset<3>(funct7) << std::endl;
     std::cout << "rs1 = " << std::bitset<5>(rs1) << ", rs2 = " << std::bitset<5>(rs2) << std::endl;
     std::cout << "rd = " << std::bitset<5>(rd) << std::endl;
     std::cout << "opcode = " << std::bitset<7>(opcode) << std::endl;
+    printf("str = %x\n", str);
     std::cout << std::endl;
 }

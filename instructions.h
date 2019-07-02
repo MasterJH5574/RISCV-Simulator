@@ -2,6 +2,8 @@
 #define PPCA_RISC_V_INSTRUCTIONS_H
 
 #include "global.h"
+#include <map>
+#include <string>
 
 enum ins_name {
     NAME0,
@@ -12,6 +14,19 @@ enum ins_name {
     LUI, AUIPC,                                                                          // U
     JAL,                                                                                 // J
 };
+
+/*
+ * 1 ADD     11 JALR    21 ORI      31 BLT
+ * 2 SLT     12 LB      22 XORI     32 BGE
+ * 3 SLTU    13 LH      23 SLLI     33 BLTU
+ * 4 AND     14 LW      24 SRLI     34 BGEU
+ * 5 OR      15 LBU     25 SRAI     35 LUI
+ * 6 XOR     16 LHU     26 SB       36 AUIPC
+ * 7 SLL     17 ADDI    27 SH       37 JAL
+ * 8 SRL     18 SLTI    28 SW
+ * 9 SUB     19 SLTIU   29 BEQ
+ * 10 SRA    20 ANDI    30 BNE
+ */
 
 class instruction {
 public:
