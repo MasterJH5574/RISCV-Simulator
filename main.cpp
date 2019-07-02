@@ -5,7 +5,7 @@
 using namespace std;
 
 int main() {
-    freopen("data.in", "r", stdin);
+    //freopen("data.in", "r", stdin);
 
     char buf[12] = {0};
     int32 mem_start = 0;
