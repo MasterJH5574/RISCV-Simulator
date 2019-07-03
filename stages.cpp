@@ -1,5 +1,34 @@
+#include <iostream>
 #include <cstring>
+#include <bitset>
 #include "stages.h"
+
+void IF_ID::display() {
+    printf("IF/ID:\n");
+    std::cout << "empty = " << empty << std::endl;
+    printf("pc of IF/ID = %x\n", _pc);
+    printf("ins_str = %x\n", ins_str);
+}
+
+void ID_EX::display() {
+    printf("ID/EX:\n");
+    std::cout << "empty = " << empty << std::endl;
+    printf("pc of ID_EX = %x\n", _pc);
+    printf("name = %d\n", name);
+}
+
+void EX_MEM::display() {
+    printf("EX/MEM:\n");
+    std::cout << "empty = " << empty << std::endl;
+    printf("name = %d\n", name);
+    printf("time = %d\n", time);
+}
+
+void MEM_WB::display() {
+    printf("MEM/WB:\n");
+    std::cout << "empty = " << empty << std::endl;
+    printf("name = %d\n", name);
+}
 
 IF_ID::IF_ID() {
     empty = true;
@@ -22,6 +51,8 @@ EX_MEM::EX_MEM() {
     v_rs1 = v_rd = 0u;
     name = NAME0;
     rd = 0u;
+
+    time = 0;
 }
 
 MEM_WB::MEM_WB() {
@@ -29,22 +60,6 @@ MEM_WB::MEM_WB() {
     v_rd = 0u;
     name = NAME0;
     rd = 0u;
-}
-
-void IF_ID::clear() {
-    empty = true;
-}
-
-void ID_EX::clear() {
-    empty = true;
-}
-
-void EX_MEM::clear() {
-    empty = true;
-}
-
-void MEM_WB::clear() {
-    empty = true;
 }
 
 void IF_ID::push() {                     // procedure IF
@@ -68,27 +83,41 @@ void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
         case LUI: case AUIPC: case JAL:
             imm = ins.imm; break;
 
-        case JALR: v_rs1 = reg[ins.rs1], imm = ins.imm; break;
+        case JALR:
+            if (!used[ins.rs1]) {
+                v_rs1 = reg[ins.rs1], imm = ins.imm;
+                break;
+            } else
+                return;
 
         case BEQ: case BNE: case BLT: case BGE: case BLTU: case BGEU:
         case SB: case SH: case SW:
-            v_rs1 = reg[ins.rs1], v_rs2 = reg[ins.rs2];
-            imm = ins.imm;
-            break;
+            if (!used[ins.rs1] && !used[ins.rs2]) {
+                v_rs1 = reg[ins.rs1], v_rs2 = reg[ins.rs2];
+                imm = ins.imm;
+                break;
+            } else
+                return;
 
         case LB: case LH: case LW: case LBU: case LHU:
         case ADDI: case SLTI: case SLTIU:
         case XORI: case ORI: case ANDI:
         case SLLI: case SRLI: case SRAI:
-            v_rs1 = reg[ins.rs1], imm = ins.imm;
-            break;
+            if (!used[ins.rs1]) {
+                v_rs1 = reg[ins.rs1], imm = ins.imm;
+                break;
+            } else
+                return;
 
         case ADD: case SUB:
         case SLL: case SRL: case SRA:
         case SLT: case SLTU:
         case XOR: case OR: case AND:
-            v_rs1 = reg[ins.rs1], v_rs2 = reg[ins.rs2];
-            break;
+            if (!used[ins.rs1] && !used[ins.rs2]) {
+                v_rs1 = reg[ins.rs1], v_rs2 = reg[ins.rs2];
+                break;
+            } else
+                return;
 
         default:
             break;
@@ -102,21 +131,26 @@ void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
     id_ex->name = ins.name;
 
     empty = true;
+
+    if (ins.name <= 25 || ins.name >= 35) {
+        used[ins.rd]++;
+        used[0] = 0;
+    }
 }
 
-void ID_EX::execute(EX_MEM *ex_mem) {    // procedure EX
+void ID_EX::execute(EX_MEM *ex_mem, IF_ID *if_id) {    // procedure EX
     int32 v_rd = 0u;
 
     switch (name) {
-        case JAL: v_rd = _pc + 4, pc = _pc + imm; break;
-        case JALR: v_rd = _pc + 4, pc = (imm + v_rs1) & (-2u); break;
+        case JAL: v_rd = _pc + 4, pc = _pc + imm, if_id->empty = true; break;
+        case JALR: v_rd = _pc + 4, pc = (imm + v_rs1) & (-2u), if_id->empty = true; break;
 
-        case BEQ: pc = _pc + (v_rs1 == v_rs2 ? imm : 4); break;
-        case BNE: pc = _pc + (v_rs1 != v_rs2 ? imm : 4); break;
-        case BLT: pc = _pc + ((int)v_rs1 < (int)v_rs2 ? imm : 4); break;
-        case BGE: pc = _pc + ((int)v_rs1 >= (int)v_rs2 ? imm : 4); break;
-        case BLTU: pc = _pc + (v_rs1 < v_rs2 ? imm : 4); break;
-        case BGEU: pc = _pc + (v_rs1 >= v_rs2 ? imm : 4); break;
+        case BEQ: pc = _pc + (v_rs1 == v_rs2 ? imm : 4), if_id->empty = true; break;
+        case BNE: pc = _pc + (v_rs1 != v_rs2 ? imm : 4), if_id->empty = true; break;
+        case BLT: pc = _pc + ((int)v_rs1 < (int)v_rs2 ? imm : 4), if_id->empty = true; break;
+        case BGE: pc = _pc + ((int)v_rs1 >= (int)v_rs2 ? imm : 4), if_id->empty = true; break;
+        case BLTU: pc = _pc + (v_rs1 < v_rs2 ? imm : 4), if_id->empty = true; break;
+        case BGEU: pc = _pc + (v_rs1 >= v_rs2 ? imm : 4), if_id->empty = true; break;
 
         case LUI: v_rd = imm; break;
         case AUIPC: v_rd += imm; break;
@@ -158,60 +192,71 @@ void ID_EX::execute(EX_MEM *ex_mem) {    // procedure EX
     ex_mem->v_rs1 = v_rs1, ex_mem->v_rd = v_rd;
     ex_mem->rd = rd;
     ex_mem->name = name;
+    ex_mem->time = 0;
 
     empty = true;
 }
 
 void EX_MEM::execute(MEM_WB *mem_wb) {   // procedure MEM
-    switch (name) {
-        case LB:
-            char res_LB;
-            memcpy(&res_LB, mem + (v_rs1 + imm), sizeof(char));
-            v_rd = (int32)res_LB;
-            break;
-        case LH:
-            short res_LH;
-            memcpy(&res_LH, mem + (v_rs1 + imm), sizeof(short));
-            v_rd = (int32)res_LH;
-            break;
-        case LW:
-            memcpy(&v_rd, mem + (v_rs1 + imm), sizeof(int32));
-            break;
-        case LBU:
-            uchar res_LBU;
-            memcpy(&res_LBU, mem + (v_rs1 + imm), sizeof(uchar));
-            v_rd = (int32)res_LBU;
-            break;
-        case LHU:
-            unsigned short res_LHU;
-            memcpy(&res_LHU, mem + (v_rs1 + imm), sizeof(unsigned short));
-            v_rd = (int32)res_LHU;
-            break;
+    if (name == LB || name == LH || name == LW || name == LBU
+            || name == LHU || name == SB || name == SH || name == SW) {
+        if (time == 3) {
+            switch (name) {
+                case LB:
+                    char res_LB;
+                    memcpy(&res_LB, mem + (v_rs1 + imm), sizeof(char));
+                    v_rd = (int32) res_LB;
+                    break;
+                case LH:
+                    short res_LH;
+                    memcpy(&res_LH, mem + (v_rs1 + imm), sizeof(short));
+                    v_rd = (int32) res_LH;
+                    break;
+                case LW:
+                    memcpy(&v_rd, mem + (v_rs1 + imm), sizeof(int32));
+                    break;
+                case LBU:
+                    uchar res_LBU;
+                    memcpy(&res_LBU, mem + (v_rs1 + imm), sizeof(uchar));
+                    v_rd = (int32) res_LBU;
+                    break;
+                case LHU:
+                    unsigned short res_LHU;
+                    memcpy(&res_LHU, mem + (v_rs1 + imm), sizeof(unsigned short));
+                    v_rd = (int32) res_LHU;
+                    break;
 
-        case SB:
-            char res_SB;
-            res_SB = (char)v_rd;
-            memcpy(mem + (v_rs1 + imm), &res_SB, sizeof(char));
-            break;
-        case SH:
-            short res_SH;
-            res_SH = (short)v_rd;
-            memcpy(mem + (v_rs1 + imm), &res_SH, sizeof(short));
-            break;
-        case SW:
-            memcpy(mem + (v_rs1 + imm), &v_rd, sizeof(int32));
-            break;
+                case SB:
+                    char res_SB;
+                    res_SB = (char) v_rd;
+                    memcpy(mem + (v_rs1 + imm), &res_SB, sizeof(char));
+                    break;
+                case SH:
+                    short res_SH;
+                    res_SH = (short) v_rd;
+                    memcpy(mem + (v_rs1 + imm), &res_SH, sizeof(short));
+                    break;
+                case SW:
+                    memcpy(mem + (v_rs1 + imm), &v_rd, sizeof(int32));
+                    break;
 
-        default:
-            break;
+                default:
+                    break;
+            }
+            mem_wb->empty = false;
+            mem_wb->v_rd = v_rd;
+            mem_wb->rd = rd;
+            mem_wb->name = name;
+            empty = true;
+        } else
+            time++;
+    } else {
+        mem_wb->empty = false;
+        mem_wb->v_rd = v_rd;
+        mem_wb->rd = rd;
+        mem_wb->name = name;
+        empty = true;
     }
-
-    mem_wb->empty = false;
-    mem_wb->v_rd = v_rd;
-    mem_wb->rd = rd;
-    mem_wb->name = name;
-
-    empty = true;
 }
 
 void MEM_WB::execute() {                 // procedure WB
@@ -221,6 +266,8 @@ void MEM_WB::execute() {                 // procedure WB
             break;
 
         default:
+            used[rd]--;
+            used[0] = 0;
             reg[rd] = v_rd;
             break;
     }

@@ -38,6 +38,77 @@ int main() {
     MEM_WB mem_wb;
 
     while (!check_end(if_id, id_ex, ex_mem, mem_wb)) {
+/*
+        printf("real pc = %x\n", pc);
+        printf("-----------\n");
+        if_id.display();
+        printf("-----------\n");
+        id_ex.display();
+        printf("-----------\n");
+        ex_mem.display();
+        printf("-----------\n");
+        mem_wb.display();
+        printf("\n");
+*/
+        if (!mem_wb.empty)
+            mem_wb.execute();
+/*
+        printf("real pc = %x\n", pc);
+        printf("-----------\n");
+        if_id.display();
+        printf("-----------\n");
+        id_ex.display();
+        printf("-----------\n");
+        ex_mem.display();
+        printf("-----------\n");
+        mem_wb.display();
+        printf("\n");
+*/
+        if (!ex_mem.empty && mem_wb.empty)
+            ex_mem.execute(&mem_wb);
+/*
+        printf("real pc = %x\n", pc);
+        printf("-----------\n");
+        if_id.display();
+        printf("-----------\n");
+        id_ex.display();
+        printf("-----------\n");
+        ex_mem.display();
+        printf("-----------\n");
+        mem_wb.display();
+        printf("\n");
+*/
+        if (!id_ex.empty && ex_mem.empty)
+            id_ex.execute(&ex_mem, &if_id);
+/*
+        printf("real pc = %x\n", pc);
+        printf("-----------\n");
+        if_id.display();
+        printf("-----------\n");
+        id_ex.display();
+        printf("-----------\n");
+        ex_mem.display();
+        printf("-----------\n");
+        mem_wb.display();
+        printf("\n");
+*/
+        if (!if_id.empty && id_ex.empty)
+            if_id.execute(&id_ex);
+/*
+        printf("real pc = %x\n", pc);
+        printf("-----------\n");
+        if_id.display();
+        printf("-----------\n");
+        id_ex.display();
+        printf("-----------\n");
+        ex_mem.display();
+        printf("-----------\n");
+        mem_wb.display();
+        printf("\n");
+*/
+        if (if_id.empty)
+            if_id.push();
+        /*
         if (if_id.empty)
             if_id.push();
 
@@ -54,6 +125,7 @@ int main() {
 
         if (!mem_wb.empty)
             mem_wb.execute();
+            */
     }
     printf("%u\n", ((int32)reg[10]) & 255u);
     return 0;

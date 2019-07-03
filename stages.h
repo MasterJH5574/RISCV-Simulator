@@ -17,9 +17,11 @@ public:
 
 public:
     IF_ID();
-    void clear();
     void push();
     void execute(ID_EX *id_ex);
+
+public:
+    void display();
 };
 
 class ID_EX {
@@ -34,8 +36,10 @@ public:
 
 public:
     ID_EX();
-    void clear();
-    void execute(EX_MEM *ex_mem);
+    void execute(EX_MEM *ex_mem, IF_ID *if_id);
+
+public:
+    void display();
 };
 
 class EX_MEM {
@@ -47,10 +51,14 @@ public:
     ins_name name;
     int32 rd;
 
+    int time;
+
 public:
     EX_MEM();
-    void clear();
     void execute(MEM_WB *mem_wb);
+
+public:
+    void display();
 };
 
 class MEM_WB {
@@ -63,8 +71,10 @@ public:
 
 public:
     MEM_WB();
-    void clear();
     void execute();
+
+public:
+    void display();
 };
 
 #endif //PPCA_RISC_V_STAGES_H

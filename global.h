@@ -8,4 +8,6 @@ extern uchar mem[8388608];
 
 extern int32 reg[32], pc;
 
+extern int used[32];
+
 #endif //PPCA_RISC_V_GLOBAL_H
