@@ -4,4 +4,6 @@ project(PPCA_risc-v)
 
 set(CMAKE_CXX_STANDARD 11)
 
+add_compile_options(-O2)
+
 add_executable(code main.cpp instructions.cpp global.cpp stages.cpp)
