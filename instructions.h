@@ -46,13 +46,6 @@ private:
     static int32 get_J_imm(const int32 &str);
 
 public:
-    void IF();
-    void ID();
-    void EX();
-    void MEM();
-    void WB();
-
-public:
     instruction();
     explicit instruction(int32 str);
 

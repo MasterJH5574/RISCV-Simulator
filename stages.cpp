@@ -56,7 +56,7 @@ void IF_ID::push() {                     // procedure IF
 
 void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
     if (ins_str == 0x00c68223) {
-        id_ex->clear();
+        id_ex->empty = true;
         return;
     }
 
@@ -101,7 +101,7 @@ void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
     id_ex->imm = imm;
     id_ex->name = ins.name;
 
-    clear();
+    empty = true;
 }
 
 void ID_EX::execute(EX_MEM *ex_mem) {    // procedure EX
@@ -159,7 +159,7 @@ void ID_EX::execute(EX_MEM *ex_mem) {    // procedure EX
     ex_mem->rd = rd;
     ex_mem->name = name;
 
-    clear();
+    empty = true;
 }
 
 void EX_MEM::execute(MEM_WB *mem_wb) {   // procedure MEM
@@ -211,7 +211,7 @@ void EX_MEM::execute(MEM_WB *mem_wb) {   // procedure MEM
     mem_wb->rd = rd;
     mem_wb->name = name;
 
-    clear();
+    empty = true;
 }
 
 void MEM_WB::execute() {                 // procedure WB
@@ -226,5 +226,5 @@ void MEM_WB::execute() {                 // procedure WB
     }
 
     reg[0] = 0;
-    clear();
+    empty = true;
 }
