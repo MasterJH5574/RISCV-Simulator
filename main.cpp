@@ -42,15 +42,15 @@ int main() {
             if_id.push();
 
         if (!if_id.empty && id_ex.empty)
-            if_id.execute(id_ex);
+            if_id.execute(&id_ex);
 
         //id_ex.ins.show_ins(id_ex._pc);
 
         if (!id_ex.empty && ex_mem.empty)
-            id_ex.execute(ex_mem);
+            id_ex.execute(&ex_mem);
 
         if (!ex_mem.empty && mem_wb.empty)
-            ex_mem.execute(mem_wb);
+            ex_mem.execute(&mem_wb);
 
         if (!mem_wb.empty)
             mem_wb.execute();

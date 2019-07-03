@@ -54,9 +54,9 @@ void IF_ID::push() {                     // procedure IF
     pc += 4;
 }
 
-void IF_ID::execute(ID_EX &id_ex) {      // procedure ID
+void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
     if (ins_str == 0x00c68223) {
-        id_ex.clear();
+        id_ex->clear();
         return;
     }
 
@@ -94,17 +94,17 @@ void IF_ID::execute(ID_EX &id_ex) {      // procedure ID
             break;
     }
 
-    id_ex.empty = false;
-    id_ex._pc = _pc;
-    id_ex.v_rs1 = v_rs1, id_ex.v_rs2 = v_rs2;
-    id_ex.rd = ins.rd;
-    id_ex.imm = imm;
-    id_ex.name = ins.name;
+    id_ex->empty = false;
+    id_ex->_pc = _pc;
+    id_ex->v_rs1 = v_rs1, id_ex->v_rs2 = v_rs2;
+    id_ex->rd = ins.rd;
+    id_ex->imm = imm;
+    id_ex->name = ins.name;
 
     clear();
 }
 
-void ID_EX::execute(EX_MEM &ex_mem) {    // procedure EX
+void ID_EX::execute(EX_MEM *ex_mem) {    // procedure EX
     int32 v_rd = 0u;
 
     switch (name) {
@@ -153,16 +153,16 @@ void ID_EX::execute(EX_MEM &ex_mem) {    // procedure EX
             break;
     }
 
-    ex_mem.empty = false;
-    ex_mem.imm = imm;
-    ex_mem.v_rs1 = v_rs1, ex_mem.v_rd = v_rd;
-    ex_mem.rd = rd;
-    ex_mem.name = name;
+    ex_mem->empty = false;
+    ex_mem->imm = imm;
+    ex_mem->v_rs1 = v_rs1, ex_mem->v_rd = v_rd;
+    ex_mem->rd = rd;
+    ex_mem->name = name;
 
     clear();
 }
 
-void EX_MEM::execute(MEM_WB &mem_wb) {   // procedure MEM
+void EX_MEM::execute(MEM_WB *mem_wb) {   // procedure MEM
     switch (name) {
         case LB:
             char res_LB;
@@ -206,10 +206,10 @@ void EX_MEM::execute(MEM_WB &mem_wb) {   // procedure MEM
             break;
     }
 
-    mem_wb.empty = false;
-    mem_wb.v_rd = v_rd;
-    mem_wb.rd = rd;
-    mem_wb.name = name;
+    mem_wb->empty = false;
+    mem_wb->v_rd = v_rd;
+    mem_wb->rd = rd;
+    mem_wb->name = name;
 
     clear();
 }

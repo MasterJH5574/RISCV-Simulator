@@ -19,7 +19,7 @@ public:
     IF_ID();
     void clear();
     void push();
-    void execute(ID_EX &id_ex);
+    void execute(ID_EX *id_ex);
 };
 
 class ID_EX {
@@ -35,7 +35,7 @@ public:
 public:
     ID_EX();
     void clear();
-    void execute(EX_MEM &ex_mem);
+    void execute(EX_MEM *ex_mem);
 };
 
 class EX_MEM {
@@ -50,7 +50,7 @@ public:
 public:
     EX_MEM();
     void clear();
-    void execute(MEM_WB &mem_wb);
+    void execute(MEM_WB *mem_wb);
 };
 
 class MEM_WB {
