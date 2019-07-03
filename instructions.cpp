@@ -174,15 +174,20 @@ instruction::instruction(int32 _str) {
     }
 }
 
-void instruction::IF() {
 
+void instruction::show_ins() {
+    printf("pc = %x\n", pc);
+    std::cout << "name = " << name << std::endl;
+    std::cout << "imm = " << std::bitset<32>(imm) << std::endl;
+    std::cout << "funct3 = " << std::bitset<3>(funct3) << ", funct7 = " << std::bitset<3>(funct7) << std::endl;
+    std::cout << "rs1 = " << std::bitset<5>(rs1) << ", rs2 = " << std::bitset<5>(rs2) << std::endl;
+    std::cout << "rd = " << std::bitset<5>(rd) << std::endl;
+    std::cout << "opcode = " << std::bitset<7>(opcode) << std::endl;
+    printf("str = %x\n", str);
+    std::cout << std::endl;
 }
 
-void instruction::ID() {
-
-}
-
-void instruction::EX() {
+void instruction::fake_EX(){
     switch (name) {
         case LUI: reg[rd] = imm, pc += 4; break;
         case AUIPC: reg[rd] += imm, pc += 4; break;
@@ -227,7 +232,7 @@ void instruction::EX() {
     reg[0] = 0;
 }
 
-void instruction::MEM() {
+void instruction::fake_MEM() {
     switch (name) {
         case LB:
             char res_LB;
@@ -260,14 +265,14 @@ void instruction::MEM() {
 
         case SB:
             char res_SB;
-            res_SB = (char)rs2;
-            memcpy(mem + (reg[rs1] + imm), &reg[res_SB], sizeof(char));
+            res_SB = (char)reg[rs2];
+            memcpy(mem + (reg[rs1] + imm), &res_SB, sizeof(char));
             pc += 4;
             break;
         case SH:
             short res_SH;
-            res_SH = (short)rs2;
-            memcpy(mem + (reg[rs1] + imm), &reg[res_SH], sizeof(short));
+            res_SH = (short)reg[rs2];
+            memcpy(mem + (reg[rs1] + imm), &res_SH, sizeof(short));
             pc += 4;
             break;
         case SW:
@@ -278,20 +283,4 @@ void instruction::MEM() {
         default:
             break;
     }
-}
-
-void instruction::WB() {
-
-}
-
-void instruction::show_ins() {
-    printf("pc = %x\n", pc);
-    std::cout << "name = " << name << std::endl;
-    std::cout << "imm = " << std::bitset<32>(imm) << std::endl;
-    std::cout << "funct3 = " << std::bitset<3>(funct3) << ", funct7 = " << std::bitset<3>(funct7) << std::endl;
-    std::cout << "rs1 = " << std::bitset<5>(rs1) << ", rs2 = " << std::bitset<5>(rs2) << std::endl;
-    std::cout << "rd = " << std::bitset<5>(rd) << std::endl;
-    std::cout << "opcode = " << std::bitset<7>(opcode) << std::endl;
-    printf("str = %x\n", str);
-    std::cout << std::endl;
 }

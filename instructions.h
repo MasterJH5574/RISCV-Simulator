@@ -57,6 +57,10 @@ public:
     explicit instruction(int32 str);
 
 public:
+    void fake_EX();
+    void fake_MEM();
+
+public:
     void show_ins();
 };
 

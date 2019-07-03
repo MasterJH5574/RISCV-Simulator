@@ -1,11 +1,20 @@
 #include <bits/stdc++.h>
 #include "instructions.h"
 #include "global.h"
+#include "stages.h"
 
 using namespace std;
 
+bool check_end(const IF_ID &if_id, const ID_EX &id_ex, const EX_MEM &ex_mem, const MEM_WB &mem_wb) {
+    if (if_id.empty)
+        return false;
+    if (if_id.ins_str != 0x00c68223)
+        return false;
+    return id_ex.empty && ex_mem.empty && mem_wb.empty;
+}
+
 int main() {
-    //freopen("data.in", "r", stdin);
+    freopen("data.in", "r", stdin);
 
     char buf[12] = {0};
     int32 mem_start = 0;
@@ -23,19 +32,27 @@ int main() {
     }
 
     pc = 0;
-    while (true) {
-        int32 str;
-        memcpy(&str, mem + pc, sizeof(int32));
-        if (str == 0x00c68223)
-            break;
+    IF_ID if_id;
+    ID_EX id_ex;
+    EX_MEM ex_mem;
+    MEM_WB mem_wb;
 
-        instruction ins(str);
+    while (!check_end(if_id, id_ex, ex_mem, mem_wb)) {
+        if (if_id.empty)
+            if_id.push();
 
-        //printf("reg[a5] = %u\n", reg[15]);
-        //ins.show_ins();
+        if (!if_id.empty && id_ex.empty)
+            if_id.execute(id_ex);
 
-        ins.EX();
-        ins.MEM();
+        if (!id_ex.empty && ex_mem.empty)
+            id_ex.execute(ex_mem);
+
+        if (!ex_mem.empty && mem_wb.empty)
+            ex_mem.execute(mem_wb);
+
+        if (!mem_wb.empty)
+            mem_wb.execute();
     }
+    printf("%u\n", ((int32)reg[10]) & 255u);
     return 0;
 }
