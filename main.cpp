@@ -14,7 +14,7 @@ bool check_end(const IF_ID &if_id, const ID_EX &id_ex, const EX_MEM &ex_mem, con
 }
 
 int main() {
-    freopen("data.in", "r", stdin);
+    //freopen("data.in", "r", stdin);
 
     char buf[12] = {0};
     int32 mem_start = 0;
