@@ -175,8 +175,8 @@ instruction::instruction(int32 _str) {
 }
 
 
-void instruction::show_ins() {
-    printf("pc = %x\n", pc);
+void instruction::show_ins(const int32 &_pc) {
+    printf("pc = %x\n", _pc);
     std::cout << "name = " << name << std::endl;
     std::cout << "imm = " << std::bitset<32>(imm) << std::endl;
     std::cout << "funct3 = " << std::bitset<3>(funct3) << ", funct7 = " << std::bitset<3>(funct7) << std::endl;

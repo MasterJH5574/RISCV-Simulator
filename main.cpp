@@ -44,6 +44,8 @@ int main() {
         if (!if_id.empty && id_ex.empty)
             if_id.execute(id_ex);
 
+        //id_ex.ins.show_ins(id_ex._pc);
+
         if (!id_ex.empty && ex_mem.empty)
             id_ex.execute(ex_mem);
 

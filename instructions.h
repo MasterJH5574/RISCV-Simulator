@@ -61,7 +61,7 @@ public:
     void fake_MEM();
 
 public:
-    void show_ins();
+    void show_ins(const int32 &_pc);
 };
 
 #endif //PPCA_RISC_V_INSTRUCTIONS_H

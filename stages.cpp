@@ -116,12 +116,12 @@ void ID_EX::execute(EX_MEM &ex_mem) {    // procedure EX
         case JAL: v_rd = _pc + 4, pc = _pc + imm; break;
         case JALR: v_rd = _pc + 4, pc = (imm + v_rs1) & (-2u); break;
 
-        case BEQ: pc = _pc + (v_rs1 == v_rs2 ? imm - 4 : 0); break;
-        case BNE: pc = _pc + (v_rs1 != v_rs2 ? imm - 4 : 0); break;
-        case BLT: pc = _pc + ((int)v_rs1 < (int)v_rs2 ? imm - 4 : 0); break;
-        case BGE: pc = _pc + ((int)v_rs1 >= (int)v_rs2 ? imm - 4 : 0); break;
-        case BLTU: pc = _pc + (v_rs1 < v_rs2 ? imm - 4 : 0); break;
-        case BGEU: pc = _pc + (v_rs1 >= v_rs2 ? imm - 4 : 0); break;
+        case BEQ: pc = _pc + (v_rs1 == v_rs2 ? imm : 4); break;
+        case BNE: pc = _pc + (v_rs1 != v_rs2 ? imm : 4); break;
+        case BLT: pc = _pc + ((int)v_rs1 < (int)v_rs2 ? imm : 4); break;
+        case BGE: pc = _pc + ((int)v_rs1 >= (int)v_rs2 ? imm : 4); break;
+        case BLTU: pc = _pc + (v_rs1 < v_rs2 ? imm : 4); break;
+        case BGEU: pc = _pc + (v_rs1 >= v_rs2 ? imm : 4); break;
 
         case LUI: v_rd = imm; break;
         case AUIPC: v_rd += imm; break;
@@ -230,5 +230,6 @@ void MEM_WB::execute() {                 // procedure WB
             break;
     }
 
+    reg[0] = 0;
     clear();
 }
