@@ -33,32 +33,18 @@ MEM_WB::MEM_WB() {
 
 void IF_ID::clear() {
     empty = true;
-    _pc = 0u;
-    ins_str = 0u;
 }
 
 void ID_EX::clear() {
     empty = true;
-    _pc = 0u;
-    imm = 0u;
-    v_rs1 = v_rs2 = 0u;
-    name = NAME0;
-    rd = 0u;
 }
 
 void EX_MEM::clear() {
     empty = true;
-    imm = 0u;
-    v_rs1 = v_rd = 0u;
-    name = NAME0;
-    rd = 0u;
 }
 
 void MEM_WB::clear() {
     empty = true;
-    v_rd = 0u;
-    name = NAME0;
-    rd = 0u;
 }
 
 void IF_ID::push() {                     // procedure IF
