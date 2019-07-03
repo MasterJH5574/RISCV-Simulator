@@ -28,7 +28,9 @@ public:
     int32 _pc;
     int32 imm;
     int32 v_rs1, v_rs2;
-    instruction ins;
+
+    ins_name name;
+    int32 rd;
 
 public:
     ID_EX();
@@ -39,10 +41,11 @@ public:
 class EX_MEM {
 public:
     bool empty;
-    int32 _pc;
     int32 imm;
     int32 v_rs1, v_rd;
-    instruction ins;
+
+    ins_name name;
+    int32 rd;
 
 public:
     EX_MEM();
@@ -53,9 +56,10 @@ public:
 class MEM_WB {
 public:
     bool empty;
-    int32 _pc;
     int32 v_rd;
-    instruction ins;
+
+    ins_name name;
+    int32 rd;
 
 public:
     MEM_WB();

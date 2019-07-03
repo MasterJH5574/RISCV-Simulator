@@ -12,19 +12,23 @@ ID_EX::ID_EX() {
     _pc = 0u;
     imm = 0u;
     v_rs1 = v_rs2 = 0u;
+    name = NAME0;
+    rd = 0u;
 }
 
 EX_MEM::EX_MEM() {
     empty = true;
-    _pc = 0u;
     imm = 0u;
     v_rs1 = v_rd = 0u;
+    name = NAME0;
+    rd = 0u;
 }
 
 MEM_WB::MEM_WB() {
     empty = true;
-    _pc = 0u;
     v_rd = 0u;
+    name = NAME0;
+    rd = 0u;
 }
 
 void IF_ID::clear() {
@@ -38,19 +42,23 @@ void ID_EX::clear() {
     _pc = 0u;
     imm = 0u;
     v_rs1 = v_rs2 = 0u;
+    name = NAME0;
+    rd = 0u;
 }
 
 void EX_MEM::clear() {
     empty = true;
-    _pc = 0u;
     imm = 0u;
     v_rs1 = v_rd = 0u;
+    name = NAME0;
+    rd = 0u;
 }
 
 void MEM_WB::clear() {
     empty = true;
-    _pc = 0u;
     v_rd = 0u;
+    name = NAME0;
+    rd = 0u;
 }
 
 void IF_ID::push() {                     // procedure IF
@@ -102,9 +110,10 @@ void IF_ID::execute(ID_EX &id_ex) {      // procedure ID
 
     id_ex.empty = false;
     id_ex._pc = _pc;
-    id_ex.ins = ins;
     id_ex.v_rs1 = v_rs1, id_ex.v_rs2 = v_rs2;
+    id_ex.rd = ins.rd;
     id_ex.imm = imm;
+    id_ex.name = ins.name;
 
     clear();
 }
@@ -112,7 +121,7 @@ void IF_ID::execute(ID_EX &id_ex) {      // procedure ID
 void ID_EX::execute(EX_MEM &ex_mem) {    // procedure EX
     int32 v_rd = 0u;
 
-    switch (ins.name) {
+    switch (name) {
         case JAL: v_rd = _pc + 4, pc = _pc + imm; break;
         case JALR: v_rd = _pc + 4, pc = (imm + v_rs1) & (-2u); break;
 
@@ -159,16 +168,16 @@ void ID_EX::execute(EX_MEM &ex_mem) {    // procedure EX
     }
 
     ex_mem.empty = false;
-    ex_mem._pc = _pc;
-    ex_mem.ins = ins;
     ex_mem.imm = imm;
     ex_mem.v_rs1 = v_rs1, ex_mem.v_rd = v_rd;
+    ex_mem.rd = rd;
+    ex_mem.name = name;
 
     clear();
 }
 
 void EX_MEM::execute(MEM_WB &mem_wb) {   // procedure MEM
-    switch (ins.name) {
+    switch (name) {
         case LB:
             char res_LB;
             memcpy(&res_LB, mem + (v_rs1 + imm), sizeof(char));
@@ -213,20 +222,20 @@ void EX_MEM::execute(MEM_WB &mem_wb) {   // procedure MEM
 
     mem_wb.empty = false;
     mem_wb.v_rd = v_rd;
-    mem_wb.ins = ins;
-    mem_wb._pc = _pc;
+    mem_wb.rd = rd;
+    mem_wb.name = name;
 
     clear();
 }
 
 void MEM_WB::execute() {                 // procedure WB
-    switch (ins.name) {
+    switch (name) {
         case BEQ: case BNE: case BLT: case BGE: case BLTU: case BGEU:
         case SB: case SH: case SW:
             break;
 
         default:
-            reg[ins.rd] = v_rd;
+            reg[rd] = v_rd;
             break;
     }
 
