@@ -3,6 +3,14 @@
 #include <bitset>
 #include "stages.h"
 
+inline int min(const int &a, const int &b) {
+    return a < b ? a : b;
+}
+
+inline int max(const int &a, const int &b) {
+    return a > b ? a : b;
+}
+
 void IF_ID::display() {
     printf("IF/ID:\n");
     std::cout << "empty = " << empty << std::endl;
@@ -136,21 +144,139 @@ void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
         used[ins.rd]++;
         used[0] = 0;
     }
+
+    // branch prediction
+    if (ins.name >= 29 && ins.name <= 34) {
+        int32 id = (_pc >> 2u) & 31u;
+        int state = pred[id].cnt[pred[id].history];
+        if (state & 2) // assume taken, pc changes
+            pc = _pc + ins.imm;
+        // else assume not taken, pc doesn't change
+    }
 }
 
 void ID_EX::execute(EX_MEM *ex_mem, IF_ID *if_id) {    // procedure EX
     int32 v_rd = 0u;
+    int32 id = (_pc >> 2u) & 31u;
+    int history = pred[id].history;
+    int &state = pred[id].cnt[history];
 
     switch (name) {
         case JAL: v_rd = _pc + 4, pc = _pc + imm, if_id->empty = true; break;
         case JALR: v_rd = _pc + 4, pc = (imm + v_rs1) & (-2u), if_id->empty = true; break;
 
+        /* without branch prediction
         case BEQ: pc = _pc + (v_rs1 == v_rs2 ? imm : 4), if_id->empty = true; break;
         case BNE: pc = _pc + (v_rs1 != v_rs2 ? imm : 4), if_id->empty = true; break;
         case BLT: pc = _pc + ((int)v_rs1 < (int)v_rs2 ? imm : 4), if_id->empty = true; break;
         case BGE: pc = _pc + ((int)v_rs1 >= (int)v_rs2 ? imm : 4), if_id->empty = true; break;
         case BLTU: pc = _pc + (v_rs1 < v_rs2 ? imm : 4), if_id->empty = true; break;
         case BGEU: pc = _pc + (v_rs1 >= v_rs2 ? imm : 4), if_id->empty = true; break;
+        */
+
+        // with branch prediction
+        case BEQ:
+            if (v_rs1 == v_rs2) {       // taken
+                if (!(state & 2)) {     // wrong
+                    pc = _pc + imm, if_id->empty = true;
+                    state++;
+                } else                  // correct
+                    state = min(state + 1, 3);
+                pred[id].history = (pred[id].history << 1 | 1) & 3;
+            } else {                    // not taken
+                if (state & 2) {        // wrong
+                    pc = _pc + 4, if_id->empty = true;
+                    state--;
+                } else
+                    state = max(state - 1, 0);
+                pred[id].history = (pred[id].history << 1) & 3;
+            }
+            break;
+        case BNE:
+            if (v_rs1 != v_rs2) {       // taken
+                if (!(state & 2)) {     // wrong
+                    pc = _pc + imm, if_id->empty = true;
+                    state++;
+                } else                  // correct
+                    state = min(state + 1, 3);
+                pred[id].history = (pred[id].history << 1 | 1) & 3;
+            } else {                    // not taken
+                if (state & 2) {        // wrong
+                    pc = _pc + 4, if_id->empty = true;
+                    state--;
+                } else
+                    state = max(state - 1, 0);
+                pred[id].history = (pred[id].history << 1) & 3;
+            }
+            break;
+        case BLT:
+            if ((int)v_rs1 < (int)v_rs2) {       // taken
+                if (!(state & 2)) {     // wrong
+                    pc = _pc + imm, if_id->empty = true;
+                    state++;
+                } else                  // correct
+                    state = min(state + 1, 3);
+                pred[id].history = (pred[id].history << 1 | 1) & 3;
+            } else {                    // not taken
+                if (state & 2) {        // wrong
+                    pc = _pc + 4, if_id->empty = true;
+                    state--;
+                } else
+                    state = max(state - 1, 0);
+                pred[id].history = (pred[id].history << 1) & 3;
+            }
+            break;
+        case BGE:
+            if ((int)v_rs1 >= (int)v_rs2) {       // taken
+                if (!(state & 2)) {     // wrong
+                    pc = _pc + imm, if_id->empty = true;
+                    state++;
+                } else                  // correct
+                    state = min(state + 1, 3);
+                pred[id].history = (pred[id].history << 1 | 1) & 3;
+            } else {                    // not taken
+                if (state & 2) {        // wrong
+                    pc = _pc + 4, if_id->empty = true;
+                    state--;
+                } else
+                    state = max(state - 1, 0);
+                pred[id].history = (pred[id].history << 1) & 3;
+            }
+            break;
+        case BLTU:
+            if (v_rs1 < v_rs2) {       // taken
+                if (!(state & 2)) {     // wrong
+                    pc = _pc + imm, if_id->empty = true;
+                    state++;
+                } else                  // correct
+                    state = min(state + 1, 3);
+                pred[id].history = (pred[id].history << 1 | 1) & 3;
+            } else {                    // not taken
+                if (state & 2) {        // wrong
+                    pc = _pc + 4, if_id->empty = true;
+                    state--;
+                } else
+                    state = max(state - 1, 0);
+                pred[id].history = (pred[id].history << 1) & 3;
+            }
+            break;
+        case BGEU:
+            if (v_rs1 >= v_rs2) {       // taken
+                if (!(state & 2)) {     // wrong
+                    pc = _pc + imm, if_id->empty = true;
+                    state++;
+                } else                  // correct
+                    state = min(state + 1, 3);
+                pred[id].history = (pred[id].history << 1 | 1) & 3;
+            } else {                    // not taken
+                if (state & 2) {        // wrong
+                    pc = _pc + 4, if_id->empty = true;
+                    state--;
+                } else
+                    state = max(state - 1, 0);
+                pred[id].history = (pred[id].history << 1) & 3;
+            }
+            break;
 
         case LUI: v_rd = imm; break;
         case AUIPC: v_rd += imm; break;
