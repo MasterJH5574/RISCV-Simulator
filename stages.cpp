@@ -77,7 +77,7 @@ void IF_ID::push() {                     // procedure IF
     pc += 4;
 }
 
-void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
+void IF_ID::execute(ID_EX *id_ex, EX_MEM *ex_mem, MEM_WB *mem_wb) {      // procedure ID
     if (ins_str == 0x00c68223) {
         id_ex->empty = true;
         return;
@@ -95,6 +95,12 @@ void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
             if (!used[ins.rs1]) {
                 v_rs1 = reg[ins.rs1], imm = ins.imm;
                 break;
+            } else if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && ex_mem->rd == ins.rs1) {
+                v_rs1 = ex_mem->v_rd, imm = ins.imm;
+                break;
+            } else if (!mem_wb->empty && mem_wb->rd == ins.rs1) {
+                v_rs1 = mem_wb->v_rd, imm = ins.imm;
+                break;
             } else
                 return;
 
@@ -102,6 +108,38 @@ void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
         case SB: case SH: case SW:
             if (!used[ins.rs1] && !used[ins.rs2]) {
                 v_rs1 = reg[ins.rs1], v_rs2 = reg[ins.rs2];
+                imm = ins.imm;
+                break;
+            } else if (!used[ins.rs1]) {
+                if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && ex_mem->rd == ins.rs2) {
+                    v_rs1 = reg[ins.rs1], v_rs2 = ex_mem->v_rd;
+                    imm = ins.imm;
+                    break;
+                } else if (!mem_wb->empty && mem_wb->rd == ins.rs2) {
+                    v_rs1 = reg[ins.rs1], v_rs2 = mem_wb->v_rd;
+                    imm = ins.imm;
+                    break;
+                } else
+                    return;
+            } else if (!used[ins.rs2]) {
+                if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && ex_mem->rd == ins.rs1) {
+                    v_rs1 = ex_mem->v_rd, v_rs2 = reg[ins.rs2];
+                    imm = ins.imm;
+                    break;
+                } else if (!mem_wb->empty && mem_wb->rd == ins.rs1) {
+                    v_rs1 = mem_wb->v_rd, v_rs2 = reg[ins.rs2];
+                    imm = ins.imm;
+                    break;
+                } else
+                    return;
+            } else if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && !mem_wb->empty
+                        && ex_mem->rd == ins.rs1 && mem_wb->rd == ins.rs2) {
+                v_rs1 = ex_mem->v_rd, v_rs2 = mem_wb->v_rd;
+                imm = ins.imm;
+                break;
+            } else if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && !mem_wb->empty
+                        && mem_wb->rd == ins.rs1 && ex_mem->rd == ins.rs2) {
+                v_rs1 = mem_wb->v_rd, v_rs2 = ex_mem->v_rd;
                 imm = ins.imm;
                 break;
             } else
@@ -114,6 +152,12 @@ void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
             if (!used[ins.rs1]) {
                 v_rs1 = reg[ins.rs1], imm = ins.imm;
                 break;
+            } else if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && ex_mem->rd == ins.rs1) {
+                v_rs1 = ex_mem->v_rd, imm = ins.imm;
+                break;
+            } else if (!mem_wb->empty && mem_wb->rd == ins.rs1) {
+                v_rs1 = mem_wb->v_rd, imm = ins.imm;
+                break;
             } else
                 return;
 
@@ -124,12 +168,43 @@ void IF_ID::execute(ID_EX *id_ex) {      // procedure ID
             if (!used[ins.rs1] && !used[ins.rs2]) {
                 v_rs1 = reg[ins.rs1], v_rs2 = reg[ins.rs2];
                 break;
+            } else if (!used[ins.rs1]) {
+                if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && ex_mem->rd == ins.rs2) {
+                    v_rs1 = reg[ins.rs1], v_rs2 = ex_mem->v_rd;
+                    break;
+                } else if (!mem_wb->empty && mem_wb->rd == ins.rs2) {
+                    v_rs1 = reg[ins.rs1], v_rs2 = mem_wb->v_rd;
+                    break;
+                } else
+                    return;
+            } else if (!used[ins.rs2]) {
+                if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && ex_mem->rd == ins.rs1) {
+                    v_rs1 = ex_mem->v_rd, v_rs2 = reg[ins.rs2];
+                    break;
+                } else if (!mem_wb->empty && mem_wb->rd == ins.rs1) {
+                    v_rs1 = mem_wb->v_rd, v_rs2 = reg[ins.rs2];
+                    break;
+                } else
+                    return;
+            } else if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && !mem_wb->empty
+                        && ex_mem->rd == ins.rs1 && mem_wb->rd == ins.rs2) {
+                v_rs1 = ex_mem->v_rd, v_rs2 = mem_wb->v_rd;
+                break;
+            } else if ((ex_mem->name <= 11 || ex_mem->name >= 17) && !ex_mem->empty && !mem_wb->empty
+                        && mem_wb->rd == ins.rs1 && ex_mem->rd == ins.rs2) {
+                v_rs1 = mem_wb->v_rd, v_rs2 = ex_mem->v_rd;
+                break;
             } else
                 return;
 
         default:
             break;
     }
+
+    if (ins.rs1 == 0)
+        v_rs1 = 0;
+    if (ins.rs2 == 0)
+        v_rs2 = 0;
 
     id_ex->empty = false;
     id_ex->_pc = _pc;
@@ -320,6 +395,9 @@ void ID_EX::execute(EX_MEM *ex_mem, IF_ID *if_id) {    // procedure EX
     ex_mem->name = name;
     ex_mem->time = 0;
 
+    if (!ex_mem->empty && ex_mem->name >= 26 && ex_mem->name <= 34)
+        ex_mem->rd = 32u;
+
     empty = true;
 }
 
@@ -383,6 +461,9 @@ void EX_MEM::execute(MEM_WB *mem_wb) {   // procedure MEM
         mem_wb->name = name;
         empty = true;
     }
+
+    if (!mem_wb->empty && mem_wb->name >= 26 && mem_wb->name <= 34)
+        mem_wb->rd = 32u;
 }
 
 void MEM_WB::execute() {                 // procedure WB

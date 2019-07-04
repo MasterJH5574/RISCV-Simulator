@@ -18,7 +18,7 @@ public:
 public:
     IF_ID();
     void push();
-    void execute(ID_EX *id_ex);
+    void execute(ID_EX *id_ex, EX_MEM *ex_mem, MEM_WB *mem_wb);
 
 public:
     void display();

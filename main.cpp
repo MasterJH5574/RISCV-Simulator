@@ -46,7 +46,7 @@ int main() {
         if (!id_ex.empty && ex_mem.empty)
             id_ex.execute(&ex_mem, &if_id);
         if (!if_id.empty && id_ex.empty)
-            if_id.execute(&id_ex);
+            if_id.execute(&id_ex, &ex_mem, &mem_wb);
         if (if_id.empty)
             if_id.push();
     }
