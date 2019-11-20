@@ -350,7 +350,7 @@ void ID_EX::execute(EX_MEM *ex_mem, IF_ID *if_id) {    // procedure EX
             break;
 
         case LUI: v_rd = imm; break;
-        case AUIPC: v_rd += imm; break;
+        case AUIPC: v_rd = _pc + imm; break;
 
         case ADDI: v_rd = v_rs1 + imm; break;
         case SLTI: v_rd = (int)v_rs1 < (int)imm; break;
